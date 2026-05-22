@@ -35,7 +35,16 @@ const ProductDetails = ({ productId }) => {
     if (selectedProduct?.images?.length > 0) {
       setMainImage(selectedProduct.images[0].url);
     }
-  }, [selectedProduct]);
+
+    if (selectedProduct) {
+      if (!selectedSize && selectedProduct.sizes?.length > 0) {
+        setSelectedSize(selectedProduct.sizes[0]);
+      }
+      if (!selectedColor && selectedProduct.colors?.length > 0) {
+        setSelectedColor(selectedProduct.colors[0]);
+      }
+    }
+  }, [selectedProduct, selectedSize, selectedColor]);
 
   const handleQuantityChange = (action) => {
     if (action === "plus") setQuantity((prev) => prev + 1);
@@ -44,9 +53,19 @@ const ProductDetails = ({ productId }) => {
 
   const handleAddToCart = () => {
     if (!selectedSize || !selectedColor) {
-      toast.error("Please select a size and color before adding to cart.", {
-        duration: 1000,
-      });
+      if (!selectedSize && !selectedColor) {
+        toast.error("Please select a size and a color before adding to cart.", {
+          duration: 1000,
+        });
+      } else if (!selectedSize) {
+        toast.error("Please select a size before adding to cart.", {
+          duration: 1000,
+        });
+      } else {
+        toast.error("Please select a color before adding to cart.", {
+          duration: 1000,
+        });
+      }
       return;
     }
 
@@ -145,7 +164,7 @@ const ProductDetails = ({ productId }) => {
 
               <div className="mb-4">
                 <p className="text-gray-700">Color:</p>
-                <div className="flex gap-2 mt-2">
+                <div className="flex gap-2 mt-2 items-center">
                   {selectedProduct.colors.map((color) => (
                     <button
                       key={color}
@@ -156,12 +175,21 @@ const ProductDetails = ({ productId }) => {
                           : "border-gray-300"
                       }`}
                       style={{
-                        backgroundColor: color.toLocaleLowerCase(),
-                        filter: "brightness(0.5)",
+                        backgroundColor: color,
+                        minWidth: "2rem",
+                        minHeight: "2rem",
                       }}
-                    ></button>
+                      title={color}
+                    >
+                      {color.includes(" ") ? "" : ""}
+                    </button>
                   ))}
                 </div>
+                {selectedColor && (
+                  <p className="mt-2 text-sm text-gray-500">
+                    Selected color: {selectedColor}
+                  </p>
+                )}
               </div>
               <div className="mb-4">
                 <p className="text-gray-700">Size:</p>
